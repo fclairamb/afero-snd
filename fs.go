@@ -158,13 +158,6 @@ func (fs *Fs) Name() string {
 
 func (fs *Fs) start() {
 	go fs.processOperations()
-	/*
-		go func() {
-			for range fs.cleanupTimer.C {
-				fs.queueOperation(func() error { return fs.gc.run() })
-			}
-		}()
-	*/
 }
 
 // Close the file system
