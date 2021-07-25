@@ -4,7 +4,6 @@ package snd
 import (
 	"errors"
 	"fmt"
-	"io/fs"
 	"io/ioutil"
 	"os"
 	"time"
@@ -205,14 +204,14 @@ func (fs *Fs) OpenFile(name string, flag int, perm os.FileMode) (afero.File, err
 }
 
 // MkDir creates a new directory with the specified name and permission bits.
-func (fs *Fs) MkDir(name string, perm fs.FileMode) error {
+func (fs *Fs) MkDir(name string, perm os.FileMode) error {
 	fs.queueOperation(func() error { return wrapFsError(fs.destination.Mkdir(name, perm)) })
 
 	return wrapFsError(fs.Fs.Mkdir(name, perm))
 }
 
 // MkdirAll creates a directory andall its parents
-func (fs *Fs) MkdirAll(path string, perm fs.FileMode) error {
+func (fs *Fs) MkdirAll(path string, perm os.FileMode) error {
 	fs.queueOperation(func() error { return wrapFsError(fs.destination.MkdirAll(path, perm)) })
 
 	return wrapFsError(fs.Fs.MkdirAll(path, perm))
