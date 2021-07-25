@@ -49,10 +49,4 @@ func TestGc(t *testing.T) {
 		_, err := fs.Stat("/a/b/file2")
 		assert.NoError(err)
 	}
-
-	{
-		v := 0
-		fs.behavior.FileNbMin = &v
-	}
-	time.Sleep(time.Millisecond * 500)
 }
