@@ -95,7 +95,8 @@ func NewFs(config *Config) (*Fs, error) {
 	}
 
 	if beh.FileAgeMin == 0 {
-		beh.FileAgeMin = time.Minute
+		// We keep files 20 minutes by default
+		beh.FileAgeMin = time.Minute * 20
 	}
 
 	if beh.CleanupPeriod == 0 {
