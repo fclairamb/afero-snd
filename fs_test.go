@@ -2,7 +2,6 @@ package snd
 
 import (
 	"errors"
-	"io/ioutil"
 	"os"
 	"syscall"
 	"testing"
@@ -10,27 +9,31 @@ import (
 
 	"github.com/fclairamb/go-log/gokit"
 	"github.com/spf13/afero"
-	tassert "github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-func GetFsConfig(t *testing.T, config *Config) (*Fs, *tassert.Assertions) {
-	fs, err := NewFs(config)
+func GetFsConfig(t *testing.T, config *Config) (*Fs, *require.Assertions) {
+	t.Helper()
+
+	fileSystem, err := NewFs(config)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	t.Cleanup(func() {
-		if err := fs.Close(); err != nil {
+		if err := fileSystem.Close(); err != nil {
 			t.Fatal(err)
 		}
 	})
 
-	return fs, tassert.New(t)
+	return fileSystem, require.New(t)
 }
 
-func GetFsAuto(t *testing.T) (*Fs, *tassert.Assertions) {
-	logger := gokit.NewGKLoggerStdout().With("test", t.Name()).With("caller", gokit.GKDefaultCaller)
-	tempDirPath, _ := ioutil.TempDir("", t.Name())
+func GetFsAuto(t *testing.T) (*Fs, *require.Assertions) {
+	t.Helper()
+
+	logger := gokit.New().With("test", t.Name()).With("caller", gokit.GKDefaultCaller)
+	tempDirPath, _ := os.MkdirTemp("", t.Name())
 
 	if err := os.MkdirAll(tempDirPath, 0750); err != nil {
 		panic(err)
@@ -76,6 +79,8 @@ func (fs *Fs) queueSleep(dur time.Duration) {
 }
 
 func writeFile(t *testing.T, fs *Fs, name string, content string) { // First we write a file
+	t.Helper()
+
 	file, err := fs.OpenFile(name, os.O_CREATE|os.O_WRONLY, 0755)
 	if err != nil {
 		t.Fatal(err)
@@ -91,62 +96,64 @@ func writeFile(t *testing.T, fs *Fs, name string, content string) { // First we 
 }
 
 func TestFsCreateReadDelete(t *testing.T) {
-	fs, assert := GetFsAuto(t)
-	fs.queueSleep(time.Second)
+	fileSystem, req := GetFsAuto(t)
 
-	assert.NoError(fs.MkdirAll("/a/b/c", 0755))
+	fileSystem.queueSleep(time.Second)
 
-	assert.NoError(fs.MkDir("/d", 0755))
+	req.NoError(fileSystem.MkdirAll("/a/b/c", 0755))
 
-	writeFile(t, fs, "/a/b/c/test1", "test1")
+	req.NoError(fileSystem.MkDir("/d", 0755))
+
+	writeFile(t, fileSystem, "/a/b/c/test1", "test1")
 
 	{
-		_, err := fs.destination.Stat("/a/b/c/test1")
-		assert.Error(err, "File should not exist")
+		_, err := fileSystem.destination.Stat("/a/b/c/test1")
+		req.Error(err, "File should not exist")
 	}
 
-	assert.NoError(fs.Sync())
+	req.NoError(fileSystem.Sync())
 
-	fs.queueSleep(time.Second)
+	fileSystem.queueSleep(time.Second)
 
 	{
-		stat, err := fs.destination.Stat("/a/b/c/test1")
-		assert.NoError(err)
-		assert.Equal(int64(5), stat.Size(), "Wrong file size")
+		stat, err := fileSystem.destination.Stat("/a/b/c/test1")
+		req.NoError(err)
+		req.Equal(int64(5), stat.Size(), "Wrong file size")
 	}
 
-	assert.NoError(fs.Rename("/a/b/c/test1", "/a/b/c/test2"))
+	req.NoError(fileSystem.Rename("/a/b/c/test1", "/a/b/c/test2"))
 
-	assert.NoError(fs.Sync())
+	req.NoError(fileSystem.Sync())
 
 	{
-		_, err := fs.destination.Stat("/a/b/c/test2")
-		assert.NoError(err)
+		_, err := fileSystem.destination.Stat("/a/b/c/test2")
+		req.NoError(err)
 	}
 
 	{
-		file, err := fs.OpenFile("/a/b/c/test2", os.O_RDONLY, 0755)
-		assert.NoError(err)
+		file, err := fileSystem.OpenFile("/a/b/c/test2", os.O_RDONLY, 0755)
+		req.NoError(err)
+
 		bufffer := make([]byte, 20)
 		n, err := file.Read(bufffer)
-		assert.NoError(err)
-		assert.Equal(5, n)
+		req.NoError(err)
+		req.Equal(5, n)
 
-		assert.NoError(file.Close())
+		req.NoError(file.Close())
 	}
 
-	assert.NoError(fs.Remove("/d"))
-	assert.NoError(fs.RemoveAll("/a"))
+	req.NoError(fileSystem.Remove("/d"))
+	req.NoError(fileSystem.RemoveAll("/a"))
 }
 
 func TestFsOps(t *testing.T) {
-	fs, assert := GetFsAuto(t)
+	fileSystem, req := GetFsAuto(t)
 
-	writeFile(t, fs, "test2", "test2")
+	writeFile(t, fileSystem, "test2", "test2")
 
-	assert.NoError(fs.Chmod("test2", 0700))
+	req.NoError(fileSystem.Chmod("test2", 0700))
 
-	if err := fs.Chown("test2", 0, 0); err == nil {
+	if err := fileSystem.Chown("test2", 0, 0); err == nil {
 		t.Fatal("We should have an error")
 	} else {
 		var syserr syscall.Errno
@@ -157,7 +164,7 @@ func TestFsOps(t *testing.T) {
 
 	{
 		time := time.Unix(0, 0)
-		assert.NoError(fs.Chtimes("test2", time, time))
+		req.NoError(fileSystem.Chtimes("test2", time, time))
 	}
 }
 
@@ -179,6 +186,6 @@ func TestFsInit(t *testing.T) {
 }
 
 func TestFsProperties(t *testing.T) {
-	fs, assert := GetFsAuto(t)
-	assert.Equal("snd", fs.Name())
+	fs, req := GetFsAuto(t)
+	req.Equal("snd", fs.Name())
 }
