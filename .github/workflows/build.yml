@@ -23,11 +23,11 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4.1.4
 
       # Install Go
       - name: Setup go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v5.0.1
         with:
           go-version: ${{ matrix.go }}
 
@@ -37,7 +37,7 @@ jobs:
       # Running golangci-lint
       - name: Linting
         if: matrix.lint
-        uses: golangci/golangci-lint-action@v3
+        uses: golangci/golangci-lint-action@v6.0.1
         with:
           version: v1.41
 
