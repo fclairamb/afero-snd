@@ -25,13 +25,6 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE
       - uses: actions/checkout@v3
 
-      # Running golangci-lint
-      - name: Linting
-        if: matrix.lint
-        uses: golangci/golangci-lint-action@v3
-        with:
-          version: v1.41
-
       # Install Go
       - name: Setup go
         uses: actions/setup-go@v3
@@ -40,6 +33,13 @@ jobs:
 
       - name: Build
         run: go build -v ./...
+
+      # Running golangci-lint
+      - name: Linting
+        if: matrix.lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.41
 
       - name: Test
         # We need GCC because of the "go test -race"
