@@ -15,7 +15,6 @@ var (
 	_ afero.Fs = (*Fs)(nil)
 )
 
-// nolint:govet
 type garbageCollector struct {
 	fs              afero.Fs
 	behavior        *Behavior

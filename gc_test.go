@@ -9,14 +9,14 @@ import (
 )
 
 func TestGc(t *testing.T) {
-	v := 3
+	fileNbMin := 3
 
-	fs, assert := GetFsConfig(t, &Config{
+	fileSystem, assert := GetFsConfig(t, &Config{
 		Destination: afero.NewMemMapFs(),
 		Behavior: &Behavior{
 			CleanupPeriod: time.Millisecond,
 			FileAgeMin:    time.Millisecond * 200,
-			FileNbMin:     &v,
+			FileNbMin:     &fileNbMin,
 		},
 		Logger: gokit.New().
 			With("test", t.Name()).
@@ -24,29 +24,31 @@ func TestGc(t *testing.T) {
 			With("time", gokit.GKDefaultTimestampUTC),
 	})
 
-	log := fs.log
+	log := fileSystem.log
 
-	assert.NoError(fs.MkdirAll("/a/b", 0750))
+	assert.NoError(fileSystem.MkdirAll("/a/b", 0750))
 
 	log.Info("Writing file1")
-	writeFile(t, fs, "/a/b/file1", "file1")
+	writeFile(t, fileSystem, "/a/b/file1", "file1")
 
 	time.Sleep(time.Millisecond * 150)
 
 	log.Info("Writing file2")
-	writeFile(t, fs, "/a/b/file2", "file2")
+	writeFile(t, fileSystem, "/a/b/file2", "file2")
 
 	time.Sleep(time.Millisecond * 150)
 
 	{
 		log.Info("Checking for file1")
-		_, err := fs.Stat("/a/b/file1")
+
+		_, err := fileSystem.Stat("/a/b/file1")
 		assert.Error(err)
 	}
 
 	{
 		log.Info("Checking for file2")
-		_, err := fs.Stat("/a/b/file2")
+
+		_, err := fileSystem.Stat("/a/b/file2")
 		assert.NoError(err)
 	}
 }

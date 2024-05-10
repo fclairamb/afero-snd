@@ -39,7 +39,7 @@ jobs:
         if: matrix.lint
         uses: golangci/golangci-lint-action@v6.0.1
         with:
-          version: v1.41
+          version: v1.58.1
 
       - name: Test
         # We need GCC because of the "go test -race"

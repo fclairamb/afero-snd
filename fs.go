@@ -4,7 +4,6 @@ package snd
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"time"
 
@@ -66,7 +65,7 @@ func NewFs(config *Config) (*Fs, error) {
 
 	if config.Temporary == nil {
 		var tempDir string
-		tempDir, err := ioutil.TempDir("", "afero-snd")
+		tempDir, err := os.MkdirTemp("", "afero-snd")
 
 		if err != nil {
 			return nil, wrapFsError(err)
@@ -179,7 +178,7 @@ func (fs *Fs) queueOperation(fn process) {
 // OpenFile opens a file using the given flags and the given mode.
 func (fs *Fs) OpenFile(name string, flag int, perm os.FileMode) (afero.File, error) {
 	if flag&os.O_WRONLY != 0 {
-		f := &File{
+		file := &File{
 			parent: fs,
 			name:   name,
 			flag:   flag,
@@ -187,9 +186,9 @@ func (fs *Fs) OpenFile(name string, flag int, perm os.FileMode) (afero.File, err
 			log:    fs.log.With("fileName", name),
 		}
 		var err error
-		f.File, err = fs.Fs.OpenFile(f.name, f.flag, f.perm)
+		file.File, err = fs.Fs.OpenFile(file.name, file.flag, file.perm)
 
-		return f, wrapFsError(err)
+		return file, wrapFsError(err)
 	}
 
 	f, err := fs.Fs.OpenFile(name, flag, perm)

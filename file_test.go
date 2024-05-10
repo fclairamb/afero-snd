@@ -6,9 +6,9 @@ import (
 )
 
 func TestFileOps(t *testing.T) {
-	fs, assert := GetFsAuto(t)
+	fileSystem, assert := GetFsAuto(t)
 
-	file, err := fs.OpenFile("test2", os.O_CREATE|os.O_WRONLY, 0755)
+	file, err := fileSystem.OpenFile("test2", os.O_CREATE|os.O_WRONLY, 0755)
 	assert.NoError(err)
 
 	defer func() {
@@ -29,7 +29,7 @@ func TestFileOps(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if info, err := fs.Stat("test2"); err != nil {
+	if info, err := fileSystem.Stat("test2"); err != nil {
 		t.Fatal(err)
 	} else if info.Size() != 2 {
 		t.Fatalf("File size should be 2 and was %v", info.Size())
