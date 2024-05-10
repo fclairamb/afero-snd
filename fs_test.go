@@ -96,14 +96,13 @@ func writeFile(t *testing.T, fs *Fs, name string, content string) { // First we 
 }
 
 func TestFsCreateReadDelete(t *testing.T) {
-	fileSystem, assert := GetFsAuto(t)
-	req := require.New(t)
+	fileSystem, req := GetFsAuto(t)
 
 	fileSystem.queueSleep(time.Second)
 
-	assert.NoError(fileSystem.MkdirAll("/a/b/c", 0755))
+	req.NoError(fileSystem.MkdirAll("/a/b/c", 0755))
 
-	assert.NoError(fileSystem.MkDir("/d", 0755))
+	req.NoError(fileSystem.MkDir("/d", 0755))
 
 	writeFile(t, fileSystem, "/a/b/c/test1", "test1")
 
@@ -119,12 +118,12 @@ func TestFsCreateReadDelete(t *testing.T) {
 	{
 		stat, err := fileSystem.destination.Stat("/a/b/c/test1")
 		req.NoError(err)
-		assert.Equal(int64(5), stat.Size(), "Wrong file size")
+		req.Equal(int64(5), stat.Size(), "Wrong file size")
 	}
 
-	assert.NoError(fileSystem.Rename("/a/b/c/test1", "/a/b/c/test2"))
+	req.NoError(fileSystem.Rename("/a/b/c/test1", "/a/b/c/test2"))
 
-	assert.NoError(fileSystem.Sync())
+	req.NoError(fileSystem.Sync())
 
 	{
 		_, err := fileSystem.destination.Stat("/a/b/c/test2")
@@ -138,13 +137,13 @@ func TestFsCreateReadDelete(t *testing.T) {
 		bufffer := make([]byte, 20)
 		n, err := file.Read(bufffer)
 		req.NoError(err)
-		assert.Equal(5, n)
+		req.Equal(5, n)
 
 		req.NoError(file.Close())
 	}
 
-	assert.NoError(fileSystem.Remove("/d"))
-	assert.NoError(fileSystem.RemoveAll("/a"))
+	req.NoError(fileSystem.Remove("/d"))
+	req.NoError(fileSystem.RemoveAll("/a"))
 }
 
 func TestFsOps(t *testing.T) {
@@ -187,6 +186,6 @@ func TestFsInit(t *testing.T) {
 }
 
 func TestFsProperties(t *testing.T) {
-	fs, assert := GetFsAuto(t)
-	assert.Equal("snd", fs.Name())
+	fs, req := GetFsAuto(t)
+	req.Equal("snd", fs.Name())
 }
