@@ -2,7 +2,6 @@ package snd
 
 import (
 	"errors"
-	"io/ioutil"
 	"os"
 	"syscall"
 	"testing"
@@ -29,8 +28,8 @@ func GetFsConfig(t *testing.T, config *Config) (*Fs, *tassert.Assertions) {
 }
 
 func GetFsAuto(t *testing.T) (*Fs, *tassert.Assertions) {
-	logger := gokit.NewGKLoggerStdout().With("test", t.Name()).With("caller", gokit.GKDefaultCaller)
-	tempDirPath, _ := ioutil.TempDir("", t.Name())
+	logger := gokit.New().With("test", t.Name()).With("caller", gokit.GKDefaultCaller)
+	tempDirPath, _ := os.MkdirTemp("", t.Name())
 
 	if err := os.MkdirAll(tempDirPath, 0750); err != nil {
 		panic(err)
@@ -127,6 +126,7 @@ func TestFsCreateReadDelete(t *testing.T) {
 	{
 		file, err := fs.OpenFile("/a/b/c/test2", os.O_RDONLY, 0755)
 		assert.NoError(err)
+
 		bufffer := make([]byte, 20)
 		n, err := file.Read(bufffer)
 		assert.NoError(err)

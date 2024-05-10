@@ -18,7 +18,7 @@ func TestGc(t *testing.T) {
 			FileAgeMin:    time.Millisecond * 200,
 			FileNbMin:     &v,
 		},
-		Logger: gokit.NewGKLoggerStdout().
+		Logger: gokit.New().
 			With("test", t.Name()).
 			With("caller", gokit.GKDefaultCaller).
 			With("time", gokit.GKDefaultTimestampUTC),
