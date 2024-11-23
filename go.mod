@@ -7,7 +7,7 @@ toolchain go1.23.3
 require (
 	github.com/fclairamb/go-log v0.5.0
 	github.com/spf13/afero v1.11.0
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 )
 
 require (
