@@ -11,15 +11,15 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     strategy:
       matrix:
-        go: [ '1.22', '1.21', '1.20' ]
+        go: ["1.25", "1.24"]
         include:
-          - go: '1.22'
+          - go: "1.25"
             lint: true
-  
+
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE
@@ -39,7 +39,7 @@ jobs:
         if: matrix.lint
         uses: golangci/golangci-lint-action@v6.5.2
         with:
-          version: v1.58.1
+          version: latest
 
       - name: Test
         # We need GCC because of the "go test -race"
@@ -53,6 +53,6 @@ jobs:
   # For github to have a unique status check name
   build-status:
     needs: build
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - run: echo 'All good'

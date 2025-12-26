@@ -4,11 +4,11 @@ package snd
 import (
 	"errors"
 	"fmt"
+	"io"
+	"log/slog"
 	"os"
 	"time"
 
-	"github.com/fclairamb/go-log"
-	"github.com/fclairamb/go-log/noop"
 	"github.com/spf13/afero"
 )
 
@@ -20,7 +20,7 @@ type Fs struct {
 	operations   chan *operation
 	cleanupTimer *time.Ticker
 	gc           *garbageCollector
-	log          log.Logger
+	log          *slog.Logger
 }
 
 // Behavior defines the GC logic
@@ -36,7 +36,7 @@ type Config struct {
 	Destination afero.Fs
 	Temporary   afero.Fs
 	Behavior    *Behavior
-	Logger      log.Logger
+	Logger      *slog.Logger
 }
 
 type operation struct {
@@ -113,7 +113,7 @@ func NewFs(config *Config) (*Fs, error) {
 	}
 
 	if config.Logger == nil {
-		config.Logger = noop.NewNoOpLogger()
+		config.Logger = slog.New(slog.NewTextHandler(io.Discard, nil))
 	}
 
 	sndFs := &Fs{
@@ -185,6 +185,7 @@ func (fs *Fs) OpenFile(name string, flag int, perm os.FileMode) (afero.File, err
 			perm:   perm,
 			log:    fs.log.With("fileName", name),
 		}
+
 		var err error
 		file.File, err = fs.Fs.OpenFile(file.name, file.flag, file.perm)
 

@@ -1,10 +1,11 @@
 package snd
 
 import (
+	"log/slog"
+	"os"
 	"testing"
 	"time"
 
-	"github.com/fclairamb/go-log/gokit"
 	"github.com/spf13/afero"
 )
 
@@ -18,10 +19,7 @@ func TestGc(t *testing.T) {
 			FileAgeMin:    time.Millisecond * 200,
 			FileNbMin:     &fileNbMin,
 		},
-		Logger: gokit.New().
-			With("test", t.Name()).
-			With("caller", gokit.GKDefaultCaller).
-			With("time", gokit.GKDefaultTimestampUTC),
+		Logger: slog.New(slog.NewTextHandler(os.Stdout, nil)).With("test", t.Name()),
 	})
 
 	log := fileSystem.log
