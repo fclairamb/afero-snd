@@ -58,7 +58,7 @@ func wrapFsError(err error) error {
 }
 
 // NewFs instantiates a new file system
-func NewFs(config *Config) (*Fs, error) { //nolint:funlen // Initialization function with multiple checks
+func NewFs(config *Config) (*Fs, error) {
 	if config.Destination == nil {
 		return nil, ErrNoDestination
 	}
@@ -113,7 +113,7 @@ func NewFs(config *Config) (*Fs, error) { //nolint:funlen // Initialization func
 	}
 
 	if config.Logger == nil {
-		config.Logger = slog.New(slog.NewTextHandler(io.Discard, nil)) //nolint:sloglint // No DiscardHandler in Go 1.24
+		config.Logger = slog.New(slog.NewTextHandler(io.Discard, nil))
 	}
 
 	sndFs := &Fs{
@@ -201,7 +201,7 @@ func (fs *Fs) OpenFile(name string, flag int, perm os.FileMode) (afero.File, err
 func (fs *Fs) MkDir(name string, perm os.FileMode) error {
 	fs.queueOperation(func() error { return wrapFsError(fs.destination.Mkdir(name, perm)) })
 
-	return wrapFsError(fs.Fs.Mkdir(name, perm)) //nolint:staticcheck // Embedded field access is intentional
+	return wrapFsError(fs.Fs.Mkdir(name, perm))
 }
 
 // MkdirAll creates a directory andall its parents
