@@ -3,10 +3,10 @@ package snd
 import (
 	"errors"
 	"io"
+	"log/slog"
 	"path"
 	"time"
 
-	"github.com/fclairamb/go-log"
 	"github.com/spf13/afero"
 )
 
@@ -21,7 +21,7 @@ type garbageCollector struct {
 	nbFilesKept     int
 	nbFilesDeleted  int
 	fileMinimumDate time.Time
-	log             log.Logger
+	log             *slog.Logger
 }
 
 func (gc *garbageCollector) run() error {

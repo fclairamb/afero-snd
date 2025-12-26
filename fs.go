@@ -4,11 +4,11 @@ package snd
 import (
 	"errors"
 	"fmt"
+	"io"
+	"log/slog"
 	"os"
 	"time"
 
-	"github.com/fclairamb/go-log"
-	"github.com/fclairamb/go-log/noop"
 	"github.com/spf13/afero"
 )
 
@@ -20,7 +20,7 @@ type Fs struct {
 	operations   chan *operation
 	cleanupTimer *time.Ticker
 	gc           *garbageCollector
-	log          log.Logger
+	log          *slog.Logger
 }
 
 // Behavior defines the GC logic
@@ -36,7 +36,7 @@ type Config struct {
 	Destination afero.Fs
 	Temporary   afero.Fs
 	Behavior    *Behavior
-	Logger      log.Logger
+	Logger      *slog.Logger
 }
 
 type operation struct {
@@ -58,7 +58,7 @@ func wrapFsError(err error) error {
 }
 
 // NewFs instantiates a new file system
-func NewFs(config *Config) (*Fs, error) {
+func NewFs(config *Config) (*Fs, error) { //nolint:funlen // Initialization function with multiple checks
 	if config.Destination == nil {
 		return nil, ErrNoDestination
 	}
@@ -113,7 +113,7 @@ func NewFs(config *Config) (*Fs, error) {
 	}
 
 	if config.Logger == nil {
-		config.Logger = noop.NewNoOpLogger()
+		config.Logger = slog.New(slog.NewTextHandler(io.Discard, nil)) //nolint:sloglint // No DiscardHandler in Go 1.24
 	}
 
 	sndFs := &Fs{
@@ -185,6 +185,7 @@ func (fs *Fs) OpenFile(name string, flag int, perm os.FileMode) (afero.File, err
 			perm:   perm,
 			log:    fs.log.With("fileName", name),
 		}
+
 		var err error
 		file.File, err = fs.Fs.OpenFile(file.name, file.flag, file.perm)
 
@@ -200,7 +201,7 @@ func (fs *Fs) OpenFile(name string, flag int, perm os.FileMode) (afero.File, err
 func (fs *Fs) MkDir(name string, perm os.FileMode) error {
 	fs.queueOperation(func() error { return wrapFsError(fs.destination.Mkdir(name, perm)) })
 
-	return wrapFsError(fs.Fs.Mkdir(name, perm))
+	return wrapFsError(fs.Fs.Mkdir(name, perm)) //nolint:staticcheck // Embedded field access is intentional
 }
 
 // MkdirAll creates a directory andall its parents

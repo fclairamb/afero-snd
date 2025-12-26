@@ -2,12 +2,12 @@ package snd
 
 import (
 	"errors"
+	"log/slog"
 	"os"
 	"syscall"
 	"testing"
 	"time"
 
-	"github.com/fclairamb/go-log/gokit"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/require"
 )
@@ -32,7 +32,7 @@ func GetFsConfig(t *testing.T, config *Config) (*Fs, *require.Assertions) {
 func GetFsAuto(t *testing.T) (*Fs, *require.Assertions) {
 	t.Helper()
 
-	logger := gokit.New().With("test", t.Name()).With("caller", gokit.GKDefaultCaller)
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil)).With("test", t.Name())
 	tempDirPath, _ := os.MkdirTemp("", t.Name())
 
 	if err := os.MkdirAll(tempDirPath, 0750); err != nil {

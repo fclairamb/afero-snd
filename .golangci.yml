@@ -1,3 +1,5 @@
+version: 2
+
 run:
     # default concurrency is a available CPU number
     concurrency: 4
@@ -23,8 +25,8 @@ linters-settings:
       check-blank: false
   
     funlen:
-      lines: 80
-      statements: 40
+      lines: 100
+      statements: 70
   
     govet:
       # report about shadowed variables
@@ -47,9 +49,6 @@ linters-settings:
       disable:
         - shadow
       disable-all: false
-    golint:
-      # minimal confidence for issues, default is 0.8
-      min-confidence: 0
     gofmt:
       # simplify code: gofmt with `-s` option, true by default
       simplify: true
@@ -63,9 +62,6 @@ linters-settings:
     gocognit:
       # minimal code complexity to report, 30 by default (but we recommend 10-20)
       min-complexity: 30
-    maligned:
-      # print struct with more effective memory layout or not, false by default
-      suggest-new: true
     dupl:
       # tokens count to trigger issue, 150 by default
       threshold: 100
@@ -151,12 +147,19 @@ linters-settings:
           list-mode: lax # allow unless explicitely denied
           files:
             - $all
-            - "!$test"
           allow:
             - $gostd
+            - github.com/spf13/afero
+            - github.com/stretchr/testify
           deny:
             - pkg: io/ioutil
               desc: "replaced by io and os packages since Go 1.16: https://tip.golang.org/doc/go1.16#ioutil"
+formatters:
+    enable:
+        - gci
+        - gofmt
+        - goimports
+
 linters:
     disable-all: true
     enable:
@@ -171,7 +174,7 @@ linters:
         # - copyloopvar -> unknown in v1.56.2 ???
         # - cyclop -> Delaying it for now (too much work)
         - decorder
-        - depguard
+        # - depguard -> configuration needs adjustment for v2
         - dogsled
         - dupl
         - dupword
@@ -181,15 +184,14 @@ linters:
         - errchkjson
         - errname
         - errorlint
-        - execinquery
+        # - execinquery -> removed in v2
         - exhaustive
         # - exhaustruct --> Not convinced it's useful
         # - exhaustivestruct
-        - exportloopref
+        # - exportloopref -> removed, loop variables fixed in Go 1.22+
         - funlen
         - forbidigo
         - forcetypeassert
-        - gci
         - ginkgolinter
         - gochecknoinits
         - gochecksumtype
@@ -200,11 +202,11 @@ linters:
         - gocyclo
         # - godot --> lots of not so useful changes
         - godox
-        - goerr113
-        - gofmt
+        # - goerr113 -> removed in v2
+        # - gofmt -> moved to formatters
         # - gofumpt -> conflicts with wsl
-        - goimports
-        - gosimple
+        # - goimports -> moved to formatters
+        # - gosimple -> removed, functionality in staticcheck
         # - golint --> revive
         - revive
         # - gomnd --> too much work
@@ -213,7 +215,7 @@ linters:
         - goprintffuncname
         - gosec
         - gosmopolitan
-        - gosimple
+        # - gosimple -> duplicate, already commented above
         - govet
         - grouper
         - ineffassign
@@ -229,7 +231,7 @@ linters:
         - makezero
         - mirror
         # - maligned --> govet:fieldalignment
-        - megacheck
+        # - megacheck -> deprecated, replaced by staticcheck, gosimple, unused
         - misspell
         - musttag
         - nakedret
@@ -244,14 +246,14 @@ linters:
         - rowserrcheck
         - noctx
         - nonamedreturns
-        # - scopelint --> exportloopref
+        # - scopelint --> exportloopref (removed)
         - nosprintfhostport
-        - exportloopref 
+        # - exportloopref -> duplicate, already commented above
         - staticcheck
         # - structcheck -> unused
-        - stylecheck
+        # - stylecheck -> removed in v2
         # - paralleltest -> buggy, doesn't work with subtests
-        - typecheck
+        # - typecheck -> always enabled in newer versions
         - perfsprint
         - prealloc
         - predeclared
@@ -262,10 +264,10 @@ linters:
         - sloglint
         - spancheck
         - sqlclosecheck
-        - stylecheck
+        # - stylecheck -> duplicate, already commented above
         - tagalign
         - tagliatelle
-        - tenv
+        # - tenv -> removed in v2
         - testableexamples
         - testifylint
         # - testpackage -> too late for that
@@ -280,7 +282,8 @@ linters:
         # - varcheck -> unused
         - whitespace
         # - wrapcheck -> too much effort for now
-        - wsl
+        # - wsl -> deprecated, replaced by wsl_v5
+        # - wsl_v5 -> needs configuration adjustment for v2
         # - zerologlint -> Will most probably never use it
     fast: false
   

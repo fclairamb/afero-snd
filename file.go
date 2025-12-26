@@ -2,20 +2,20 @@ package snd
 
 import (
 	"io"
+	"log/slog"
 	"os"
 
-	"github.com/fclairamb/go-log"
 	"github.com/spf13/afero"
 )
 
 // File is the internal representation of a file
 type File struct {
-	afero.File             // Underlying temporary file
-	log        log.Logger  // Logger
-	parent     *Fs         // Parent filesystem¬
-	name       string      // Name of the file
-	flag       int         // Flag for opening file
-	perm       os.FileMode // Perm for opening file
+	afero.File              // Underlying temporary file
+	log        *slog.Logger // Logger
+	parent     *Fs          // Parent filesystem¬
+	name       string       // Name of the file
+	flag       int          // Flag for opening file
+	perm       os.FileMode  // Perm for opening file
 }
 
 // Close the file
