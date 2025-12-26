@@ -29,9 +29,6 @@ linters-settings:
       statements: 70
   
     govet:
-      # report about shadowed variables
-      check-shadowing: true
-  
       # settings per analyzer
       settings:
         printf: # analyzer name, run `go tool vet help` to see all analyzers
@@ -40,14 +37,12 @@ linters-settings:
             - (github.com/golangci/golangci-lint/pkg/logutils.Log).Warnf
             - (github.com/golangci/golangci-lint/pkg/logutils.Log).Errorf
             - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
-  
+
       # enable or disable analyzers by name
       enable:
         - atomicalign
       #  - fieldalignment
       enable-all: false
-      disable:
-        - shadow
       disable-all: false
     gofmt:
       # simplify code: gofmt with `-s` option, true by default

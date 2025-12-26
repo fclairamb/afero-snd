@@ -2,8 +2,6 @@ module github.com/fclairamb/afero-snd
 
 go 1.24.0
 
-toolchain go1.25.5
-
 require (
 	github.com/spf13/afero v1.15.0
 	github.com/stretchr/testify v1.11.1
