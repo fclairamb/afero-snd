@@ -71,7 +71,7 @@ func GetFsAuto(t *testing.T) (*Fs, *require.Assertions) {
 }
 
 func (fs *Fs) queueSleep(dur time.Duration) {
-	fs.queueOperation(func() error {
+	_ = fs.queueOperation(func() error {
 		time.Sleep(dur)
 
 		return nil
