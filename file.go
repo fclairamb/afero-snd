@@ -25,7 +25,7 @@ func (f *File) Close() error {
 	}
 
 	if f.flag&(os.O_APPEND|os.O_WRONLY|os.O_RDWR) != 0 {
-		f.parent.queueOperation(f.copyFile)
+		return f.parent.queueOperation(f.copyFile)
 	}
 
 	return nil
@@ -36,16 +36,17 @@ func (f *File) Sync() error {
 	if err := f.File.Sync(); err != nil {
 		return wrapFsError(err)
 	}
-	defer f.parent.queueOperation(f.copyFile)
 
-	return nil
+	return f.parent.queueOperation(f.copyFile)
 }
 
 // Truncate truncates the file to size bytes
 func (f *File) Truncate(size int64) error {
-	f.parent.queueOperation(f.copyFile)
+	if err := f.File.Truncate(size); err != nil {
+		return wrapFsError(err)
+	}
 
-	return wrapFsError(f.File.Truncate(size))
+	return f.parent.queueOperation(f.copyFile)
 }
 
 /*

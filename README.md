@@ -22,6 +22,16 @@ The rationale is that when using some cloud-based file systems like [S3](https:/
 - Built-in logging using Go's standard `log/slog` package
 - Configurable cleanup behavior (file age, minimum file count, cleanup period)
 
+## Closing
+
+`Close` waits for the operations queued before it (file copies, renames, deletions) to reach the
+destination, at most `Behavior.CloseTimeout` (1 minute by default). `CloseContext` takes a context
+instead. Operations still pending when the wait ends keep running in the background. `Close` can be
+called more than once. Once closed, the file system refuses new operations with `ErrClosed`.
+
+When no `Temporary` file system is given, `NewFs` creates a temporary directory: it is removed once
+the queue is drained. A `Temporary` file system given in the config is never removed.
+
 ## Installation
 
 ```bash
