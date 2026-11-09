@@ -36,6 +36,7 @@ func (f *File) Sync() error {
 	if err := f.File.Sync(); err != nil {
 		return wrapFsError(err)
 	}
+
 	return f.parent.queueOperation(f.copyFile)
 }
 

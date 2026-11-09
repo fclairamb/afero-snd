@@ -240,7 +240,7 @@ func (fs *Fs) CloseContext(ctx context.Context) error {
 	}
 }
 
-func (fs *Fs) queueOperation(fn process) error {
+func (fs *Fs) queueOperation(opFn process) error {
 	fs.mu.RLock()
 	defer fs.mu.RUnlock()
 
@@ -249,7 +249,7 @@ func (fs *Fs) queueOperation(fn process) error {
 	}
 
 	fs.operations <- &operation{
-		fn:       fn,
+		fn:       opFn,
 		queuedAt: time.Now(),
 	}
 
