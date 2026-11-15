@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"log/slog"
 	"os"
 	"sync"
@@ -131,7 +130,7 @@ func NewFs(config *Config) (*Fs, error) {
 	}
 
 	if config.Logger == nil {
-		config.Logger = slog.New(slog.NewTextHandler(io.Discard, nil))
+		config.Logger = slog.New(slog.DiscardHandler)
 	}
 
 	sndFs := &Fs{
@@ -292,7 +291,7 @@ func localThenQueue(errLocal, errQueue error) error {
 func (fs *Fs) MkDir(name string, perm os.FileMode) error {
 	errQueue := fs.queueOperation(func() error { return wrapFsError(fs.destination.Mkdir(name, perm)) })
 
-	return localThenQueue(fs.Fs.Mkdir(name, perm), errQueue)
+	return localThenQueue(fs.Mkdir(name, perm), errQueue)
 }
 
 // MkdirAll creates a directory andall its parents
