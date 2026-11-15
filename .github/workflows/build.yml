@@ -37,9 +37,9 @@ jobs:
       # Running golangci-lint
       - name: Linting
         if: matrix.lint
-        uses: golangci/golangci-lint-action@v6.5.2
+        uses: golangci/golangci-lint-action@v9.3.0
         with:
-          version: latest
+          version: v2.15.0
 
       - name: Test
         # We need GCC because of the "go test -race"
